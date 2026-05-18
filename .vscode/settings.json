@@ -1,0 +1,11 @@
+{
+  "al.enableCodeAnalysis": true,
+  "al.codeAnalyzers": [
+    "${AppSourceCop}",
+    "${PerTenantExtensionCop}",
+    "${CodeCop}",
+    "${UICop}"
+  ],
+  "al.backgroundCodeAnalysis": true,
+  "editor.formatOnSave": true
+}
