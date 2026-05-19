@@ -175,7 +175,6 @@ page 50101 "Vacation Request Card"
                     CurrPage.Update(false);
                 end;
             }
-        }
             action(ExportCalendar)
             {
                 ApplicationArea = All;

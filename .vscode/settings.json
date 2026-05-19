@@ -6,6 +6,6 @@
     "${CodeCop}",
     "${UICop}"
   ],
-  "al.backgroundCodeAnalysis": true,
+  "al.backgroundCodeAnalysis": false,
   "editor.formatOnSave": true
 }
