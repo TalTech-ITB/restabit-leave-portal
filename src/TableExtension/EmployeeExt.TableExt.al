@@ -12,12 +12,14 @@ tableextension 50100 "Employee Ext" extends Employee
             MinValue = 0;
             InitValue = 28;
         }
-        field(50101; "Manager No."; Code[20])
+        field(50101; "Manager User ID"; Code[50])
         {
-            Caption = 'Manager No.';
-            TableRelation = Employee;
-
-            trigger OnValidate()
+            Caption = 'Manager User ID';
+            DataClassification = EndUserIdentifiableInformation;
+        }
+        modify("Manager No.")
+        {
+            trigger OnAfterValidate()
             var
                 ManagerReq: Record "Vacation Request";
             begin
@@ -30,11 +32,6 @@ tableextension 50100 "Employee Ext" extends Employee
                 if ManagerReq.FindFirst() then
                     "Manager User ID" := ManagerReq."User ID";
             end;
-        }
-        field(50102; "Manager User ID"; Code[50])
-        {
-            Caption = 'Manager User ID';
-            DataClassification = EndUserIdentifiableInformation;
         }
     }
 }
