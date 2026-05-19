@@ -1,7 +1,7 @@
 {
+  "al.packageCachePath": ".alpackages",
   "al.enableCodeAnalysis": true,
   "al.codeAnalyzers": [
-    "${AppSourceCop}",
     "${PerTenantExtensionCop}",
     "${CodeCop}",
     "${UICop}"
