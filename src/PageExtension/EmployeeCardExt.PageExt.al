@@ -13,6 +13,16 @@ pageextension 50101 "Employee Card Ext" extends "Employee Card"
                 ApplicationArea = All;
                 ToolTip = 'Specifies the number of annual vacation days this employee is entitled to.';
             }
+            field("Manager No."; Rec."Manager No.")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the direct manager of this employee. Vacation request notifications are sent to this manager.';
+            }
+            field("Manager User ID"; Rec."Manager User ID")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the BC login name of the manager. Auto-filled when Manager No. is set if the manager has existing vacation requests.';
+            }
         }
         addlast(factboxes)
         {

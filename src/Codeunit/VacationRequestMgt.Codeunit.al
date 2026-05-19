@@ -58,7 +58,7 @@ codeunit 50100 VacationRequestMgt
         VacReq.Status := VacationRequestStatus::Submitted;
         VacReq."Submitted At" := CurrentDateTime();
         VacReq.Modify(true);
-        CreateNotification('',
+        CreateNotification(GetManagerUserID(VacReq."Employee No."),
             CopyStr(StrSubstNo('New vacation request submitted by %1 (%2 – %3).',
                 VacReq."Employee Name", VacReq."From Date", VacReq."To Date"), 1, 250),
             VacReq."Entry No.");
@@ -108,6 +108,15 @@ codeunit 50100 VacationRequestMgt
                 CopyStr(StrSubstNo('Vacation request for %1 (%2 – %3) has been cancelled.',
                     VacReq."Employee Name", VacReq."From Date", VacReq."To Date"), 1, 250),
                 VacReq."Entry No.");
+    end;
+
+    local procedure GetManagerUserID(EmpNo: Code[20]): Code[50]
+    var
+        Emp: Record Employee;
+    begin
+        if Emp.Get(EmpNo) and (Emp."Manager User ID" <> '') then
+            exit(Emp."Manager User ID");
+        exit('');  // broadcast if no manager set
     end;
 
     local procedure CreateNotification(TargetUserID: Code[50]; Msg: Text[250]; RequestNo: Integer)
