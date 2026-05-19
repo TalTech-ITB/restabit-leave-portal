@@ -108,6 +108,21 @@ page 50105 "My Vacation Requests"
                     CurrPage.Update(false);
                 end;
             }
+            action(ExportCalendar)
+            {
+                ApplicationArea = All;
+                Caption = 'Export to Calendar';
+                Enabled = CanExport;
+                Image = ExportFile;
+                ToolTip = 'Download this approved vacation as an .ics file for Outlook or Google Calendar.';
+
+                trigger OnAction()
+                var
+                    VacReqMgt: Codeunit VacationRequestMgt;
+                begin
+                    VacReqMgt.ExportToCalendar(Rec);
+                end;
+            }
             action(Notifications)
             {
                 ApplicationArea = All;
@@ -121,6 +136,7 @@ page 50105 "My Vacation Requests"
         {
             actionref(Submit_Ref; Submit) { }
             actionref(Cancel_Ref; Cancel) { }
+            actionref(ExportCalendar_Ref; ExportCalendar) { }
             actionref(Notifications_Ref; Notifications) { }
         }
     }
@@ -128,6 +144,7 @@ page 50105 "My Vacation Requests"
     var
         CanSubmit: Boolean;
         CanCancel: Boolean;
+        CanExport: Boolean;
         StatusStyle: Text;
 
     trigger OnOpenPage()
@@ -140,6 +157,7 @@ page 50105 "My Vacation Requests"
         CurrPage.VacationBalance.PAGE.LoadData(Rec."Employee No.");
         CanSubmit := Rec.Status = VacationRequestStatus::Draft;
         CanCancel := Rec.Status in [VacationRequestStatus::Draft, VacationRequestStatus::Submitted];
+        CanExport := Rec.Status = VacationRequestStatus::Approved;
         case Rec.Status of
             VacationRequestStatus::Approved:
                 StatusStyle := 'Favorable';

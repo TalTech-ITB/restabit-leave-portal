@@ -2,6 +2,7 @@ namespace RestABit.VacationManagement;
 
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Employee;
+using System.Utilities;
 
 codeunit 50100 VacationRequestMgt
 {
@@ -108,6 +109,48 @@ codeunit 50100 VacationRequestMgt
                 CopyStr(StrSubstNo('Vacation request for %1 (%2 – %3) has been cancelled.',
                     VacReq."Employee Name", VacReq."From Date", VacReq."To Date"), 1, 250),
                 VacReq."Entry No.");
+    end;
+
+    procedure ExportToCalendar(VacReq: Record "Vacation Request")
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        InStr: InStream;
+        FileName: Text;
+        Content: Text;
+        CRLF: Text;
+        CR: Char;
+        LF: Char;
+    begin
+        if VacReq.Status <> VacationRequestStatus::Approved then
+            Error('Only approved vacation requests can be exported to calendar.');
+
+        CR := 13;
+        LF := 10;
+        CRLF := Format(CR) + Format(LF);
+
+        Content :=
+            'BEGIN:VCALENDAR' + CRLF +
+            'VERSION:2.0' + CRLF +
+            'PRODID:-//RestABit//Vacation Management//EN' + CRLF +
+            'CALSCALE:GREGORIAN' + CRLF +
+            'METHOD:PUBLISH' + CRLF +
+            'BEGIN:VEVENT' + CRLF +
+            'DTSTART;VALUE=DATE:' + Format(VacReq."From Date", 0, '<Year4><Month,2><Day,2>') + CRLF +
+            'DTEND;VALUE=DATE:' + Format(VacReq."To Date" + 1, 0, '<Year4><Month,2><Day,2>') + CRLF +
+            'SUMMARY:' + VacReq."Vacation Type" + ' - ' + VacReq."Employee Name" + CRLF +
+            'DESCRIPTION:Approved vacation. Working days: ' + Format(VacReq."Total Days") + CRLF +
+            'STATUS:CONFIRMED' + CRLF +
+            'TRANSP:OPAQUE' + CRLF +
+            'END:VEVENT' + CRLF +
+            'END:VCALENDAR';
+
+        TempBlob.CreateOutStream(OutStr, TextEncoding::UTF8);
+        OutStr.WriteText(Content);
+        TempBlob.CreateInStream(InStr);
+
+        FileName := 'Vacation_' + Format(VacReq."From Date", 0, '<Year4><Month,2><Day,2>') + '.ics';
+        DownloadFromStream(InStr, '', '', 'Calendar Files (*.ics)|*.ics', FileName);
     end;
 
     local procedure GetManagerUserID(EmpNo: Code[20]): Code[50]

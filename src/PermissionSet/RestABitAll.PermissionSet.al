@@ -27,6 +27,7 @@ permissionset 50100 "RestABit - All"
         page "Vacation Calendar" = X,
         page "Vacation Notifications" = X,
         page "Public Holidays" = X,
+        page "RestABit Activities" = X,
         page "RestABit Demo Setup" = X,
         codeunit VacationRequestMgt = X,
         codeunit "RestABit Demo Data" = X;

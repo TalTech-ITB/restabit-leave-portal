@@ -176,12 +176,29 @@ page 50101 "Vacation Request Card"
                 end;
             }
         }
+            action(ExportCalendar)
+            {
+                ApplicationArea = All;
+                Caption = 'Export to Calendar';
+                Enabled = Rec.Status = VacationRequestStatus::Approved;
+                Image = ExportFile;
+                ToolTip = 'Download this approved vacation as an .ics file for Outlook or Google Calendar.';
+
+                trigger OnAction()
+                var
+                    VacReqMgt: Codeunit VacationRequestMgt;
+                begin
+                    VacReqMgt.ExportToCalendar(Rec);
+                end;
+            }
+        }
         area(Promoted)
         {
             actionref(Submit_Ref; Submit) { }
             actionref(Approve_Ref; Approve) { }
             actionref(Reject_Ref; Reject) { }
             actionref(Cancel_Ref; Cancel) { }
+            actionref(ExportCalendar_Ref; ExportCalendar) { }
         }
     }
 
