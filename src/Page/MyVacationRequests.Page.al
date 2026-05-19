@@ -92,15 +92,42 @@ page 50105 "My Vacation Requests"
                     CurrPage.Update(false);
                 end;
             }
+            action(Cancel)
+            {
+                ApplicationArea = All;
+                Caption = 'Cancel Request';
+                Enabled = CanCancel;
+                Image = Cancel;
+                ToolTip = 'Cancel this vacation request.';
+
+                trigger OnAction()
+                var
+                    VacReqMgt: Codeunit VacationRequestMgt;
+                begin
+                    VacReqMgt.CancelRequest(Rec);
+                    CurrPage.Update(false);
+                end;
+            }
+            action(Notifications)
+            {
+                ApplicationArea = All;
+                Caption = 'My Notifications';
+                Image = Alerts;
+                ToolTip = 'View your vacation notifications.';
+                RunObject = Page "Vacation Notifications";
+            }
         }
         area(Promoted)
         {
             actionref(Submit_Ref; Submit) { }
+            actionref(Cancel_Ref; Cancel) { }
+            actionref(Notifications_Ref; Notifications) { }
         }
     }
 
     var
         CanSubmit: Boolean;
+        CanCancel: Boolean;
         StatusStyle: Text;
 
     trigger OnOpenPage()
@@ -112,6 +139,7 @@ page 50105 "My Vacation Requests"
     begin
         CurrPage.VacationBalance.PAGE.LoadData(Rec."Employee No.");
         CanSubmit := Rec.Status = VacationRequestStatus::Draft;
+        CanCancel := Rec.Status in [VacationRequestStatus::Draft, VacationRequestStatus::Submitted];
         case Rec.Status of
             VacationRequestStatus::Approved:
                 StatusStyle := 'Favorable';
@@ -119,6 +147,8 @@ page 50105 "My Vacation Requests"
                 StatusStyle := 'Unfavorable';
             VacationRequestStatus::Submitted:
                 StatusStyle := 'Ambiguous';
+            VacationRequestStatus::Cancelled:
+                StatusStyle := 'Subordinate';
             else
                 StatusStyle := 'Standard';
         end;

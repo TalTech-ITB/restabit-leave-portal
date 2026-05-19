@@ -8,4 +8,5 @@ enum 50101 VacationRequestStatus
     value(1; Submitted) { Caption = 'Submitted'; }
     value(2; Approved) { Caption = 'Approved'; }
     value(3; Rejected) { Caption = 'Rejected'; }
+    value(4; Cancelled) { Caption = 'Cancelled'; }
 }

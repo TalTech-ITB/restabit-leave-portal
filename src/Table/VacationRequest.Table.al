@@ -61,7 +61,7 @@ table 50100 "Vacation Request"
         }
         field(7; "Total Days"; Integer)
         {
-            Caption = 'Total Days';
+            Caption = 'Working Days';
             Editable = false;
         }
         field(8; Status; Enum VacationRequestStatus)
@@ -99,6 +99,17 @@ table 50100 "Vacation Request"
             Caption = 'Approved At';
             Editable = false;
         }
+        field(15; "Rejected By"; Code[50])
+        {
+            Caption = 'Rejected By';
+            Editable = false;
+            DataClassification = EndUserIdentifiableInformation;
+        }
+        field(16; "Rejected At"; DateTime)
+        {
+            Caption = 'Rejected At';
+            Editable = false;
+        }
     }
 
     keys
@@ -115,10 +126,26 @@ table 50100 "Vacation Request"
     end;
 
     local procedure CalcTotalDays()
+    var
+        CurrentDate: Date;
     begin
-        if ("From Date" <> 0D) and ("To Date" <> 0D) and ("To Date" >= "From Date") then
-            "Total Days" := "To Date" - "From Date" + 1
-        else
-            "Total Days" := 0;
+        "Total Days" := 0;
+        if ("From Date" = 0D) or ("To Date" = 0D) or ("To Date" < "From Date") then
+            exit;
+        CurrentDate := "From Date";
+        while CurrentDate <= "To Date" do begin
+            if (Date2DWY(CurrentDate, 1) <= 5) and not IsDayOffHoliday(CurrentDate) then
+                "Total Days" += 1;
+            CurrentDate := CalcDate('<+1D>', CurrentDate);
+        end;
+    end;
+
+    local procedure IsDayOffHoliday(CheckDate: Date): Boolean
+    var
+        PublicHoliday: Record "Public Holiday";
+    begin
+        if PublicHoliday.Get(CheckDate) then
+            exit(PublicHoliday."Holiday Type" = PublicHolidayType::DayOff);
+        exit(false);
     end;
 }

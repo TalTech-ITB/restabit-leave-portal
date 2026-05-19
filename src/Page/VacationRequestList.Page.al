@@ -140,6 +140,8 @@ page 50102 "Vacation Request List"
                 StatusStyle := 'Unfavorable';
             VacationRequestStatus::Submitted:
                 StatusStyle := 'Ambiguous';
+            VacationRequestStatus::Cancelled:
+                StatusStyle := 'Subordinate';
             else
                 StatusStyle := 'Standard';
         end;

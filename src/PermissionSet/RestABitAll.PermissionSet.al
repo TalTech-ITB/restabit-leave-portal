@@ -10,9 +10,13 @@ permissionset 50100 "RestABit - All"
     Permissions =
         tabledata "Vacation Request" = RIMD,
         tabledata "Vacation Type" = RIMD,
+        tabledata "Vacation Notification" = RIMD,
+        tabledata "Public Holiday" = RIMD,
         tabledata "Employee Absence" = RIMD,
         table "Vacation Request" = X,
         table "Vacation Type" = X,
+        table "Vacation Notification" = X,
+        table "Public Holiday" = X,
         page "My Vacation Requests" = X,
         page "Vacation Pending Approvals" = X,
         page "Vacation Request List" = X,
@@ -21,5 +25,7 @@ permissionset 50100 "RestABit - All"
         page "Vacation Balance FactBox" = X,
         page "Team Vacation Overlap" = X,
         page "Vacation Calendar" = X,
+        page "Vacation Notifications" = X,
+        page "Public Holidays" = X,
         codeunit VacationRequestMgt = X;
 }

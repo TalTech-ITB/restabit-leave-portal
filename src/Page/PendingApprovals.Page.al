@@ -117,11 +117,20 @@ page 50106 "Vacation Pending Approvals"
                     CurrPage.Update(false);
                 end;
             }
+            action(Notifications)
+            {
+                ApplicationArea = All;
+                Caption = 'My Notifications';
+                Image = Alerts;
+                ToolTip = 'View your vacation notifications.';
+                RunObject = Page "Vacation Notifications";
+            }
         }
         area(Promoted)
         {
             actionref(Approve_Ref; Approve) { }
             actionref(Reject_Ref; Reject) { }
+            actionref(Notifications_Ref; Notifications) { }
         }
     }
 

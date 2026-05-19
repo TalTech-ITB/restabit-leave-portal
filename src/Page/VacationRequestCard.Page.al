@@ -82,6 +82,18 @@ page 50101 "Vacation Request Card"
                     Visible = Rec.Status = VacationRequestStatus::Rejected;
                     ToolTip = 'Specifies the reason this request was rejected.';
                 }
+                field("Rejected By"; Rec."Rejected By")
+                {
+                    ApplicationArea = All;
+                    Visible = Rec.Status = VacationRequestStatus::Rejected;
+                    ToolTip = 'Specifies who rejected this request.';
+                }
+                field("Rejected At"; Rec."Rejected At")
+                {
+                    ApplicationArea = All;
+                    Visible = Rec.Status = VacationRequestStatus::Rejected;
+                    ToolTip = 'Specifies when this request was rejected.';
+                }
             }
         }
         area(FactBoxes)
@@ -147,12 +159,29 @@ page 50101 "Vacation Request Card"
                     CurrPage.Update(false);
                 end;
             }
+            action(Cancel)
+            {
+                ApplicationArea = All;
+                Caption = 'Cancel Request';
+                Enabled = CanCancel;
+                Image = Cancel;
+                ToolTip = 'Cancel this vacation request.';
+
+                trigger OnAction()
+                var
+                    VacReqMgt: Codeunit VacationRequestMgt;
+                begin
+                    VacReqMgt.CancelRequest(Rec);
+                    CurrPage.Update(false);
+                end;
+            }
         }
         area(Promoted)
         {
             actionref(Submit_Ref; Submit) { }
             actionref(Approve_Ref; Approve) { }
             actionref(Reject_Ref; Reject) { }
+            actionref(Cancel_Ref; Cancel) { }
         }
     }
 
@@ -161,6 +190,7 @@ page 50101 "Vacation Request Card"
         CanSubmit: Boolean;
         CanApprove: Boolean;
         CanReject: Boolean;
+        CanCancel: Boolean;
         StatusStyle: Text;
 
     trigger OnAfterGetCurrRecord()
@@ -176,6 +206,7 @@ page 50101 "Vacation Request Card"
         CanSubmit := Rec.Status = VacationRequestStatus::Draft;
         CanApprove := Rec.Status = VacationRequestStatus::Submitted;
         CanReject := Rec.Status = VacationRequestStatus::Submitted;
+        CanCancel := Rec.Status in [VacationRequestStatus::Draft, VacationRequestStatus::Submitted];
         case Rec.Status of
             VacationRequestStatus::Approved:
                 StatusStyle := 'Favorable';
@@ -183,6 +214,8 @@ page 50101 "Vacation Request Card"
                 StatusStyle := 'Unfavorable';
             VacationRequestStatus::Submitted:
                 StatusStyle := 'Ambiguous';
+            VacationRequestStatus::Cancelled:
+                StatusStyle := 'Subordinate';
             else
                 StatusStyle := 'Standard';
         end;
