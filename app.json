@@ -2,7 +2,7 @@
   "id": "badd6206-0d36-43d2-bf5d-73d2b4ad7a52",
   "name": "RestABit",
   "publisher": "metudev",
-  "version": "1.0.0.0",
+  "version": "1.0.0.1",
   "brief": "Vacation management extension for Business Central",
   "description": "Handles employee vacation requests, approvals, and balance tracking.",
   "privacyStatement": "",
