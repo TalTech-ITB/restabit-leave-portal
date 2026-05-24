@@ -19,16 +19,24 @@ page 50112 "RestABit Activities"
                 {
                     ApplicationArea = All;
                     Caption = 'Pending Approvals';
-                    DrillDownPageId = "Vacation Pending Approvals";
                     StyleExpr = PendingStyle;
                     ToolTip = 'Number of vacation requests waiting for approval.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Vacation Pending Approvals");
+                    end;
                 }
                 field(TeamAbsent; TeamAbsentCount)
                 {
                     ApplicationArea = All;
                     Caption = 'Team Out Today';
-                    DrillDownPageId = "Vacation Calendar";
                     ToolTip = 'Number of colleagues on approved vacation today.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Vacation Calendar");
+                    end;
                 }
             }
             cuegroup(MyActivity)
@@ -39,24 +47,36 @@ page 50112 "RestABit Activities"
                 {
                     ApplicationArea = All;
                     Caption = 'My Drafts';
-                    DrillDownPageId = "My Vacation Requests";
                     ToolTip = 'Number of your vacation requests still in draft.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"My Vacation Requests");
+                    end;
                 }
                 field(MySubmitted; MySubmittedCount)
                 {
                     ApplicationArea = All;
                     Caption = 'Awaiting Approval';
-                    DrillDownPageId = "My Vacation Requests";
                     StyleExpr = SubmittedStyle;
                     ToolTip = 'Number of your vacation requests waiting for a manager decision.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"My Vacation Requests");
+                    end;
                 }
                 field(UnreadNotif; UnreadNotifCount)
                 {
                     ApplicationArea = All;
                     Caption = 'Unread Notifications';
-                    DrillDownPageId = "Vacation Notifications";
                     StyleExpr = NotifStyle;
                     ToolTip = 'Number of unread vacation notifications.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Vacation Notifications");
+                    end;
                 }
             }
         }
@@ -71,6 +91,30 @@ page 50112 "RestABit Activities"
         PendingStyle: Text;
         SubmittedStyle: Text;
         NotifStyle: Text;
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Refresh)
+            {
+                ApplicationArea = All;
+                Caption = 'Refresh';
+                Image = Refresh;
+                ToolTip = 'Refresh all counts.';
+
+                trigger OnAction()
+                begin
+                    RefreshCues();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref(Refresh_Ref; Refresh) { }
+        }
+    }
 
     trigger OnOpenPage()
     begin
