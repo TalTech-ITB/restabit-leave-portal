@@ -82,16 +82,6 @@ page 50112 "RestABit Activities"
         }
     }
 
-    var
-        PendingApprovalCount: Integer;
-        TeamAbsentCount: Integer;
-        MyDraftCount: Integer;
-        MySubmittedCount: Integer;
-        UnreadNotifCount: Integer;
-        PendingStyle: Text;
-        SubmittedStyle: Text;
-        NotifStyle: Text;
-
     actions
     {
         area(Processing)
@@ -115,6 +105,16 @@ page 50112 "RestABit Activities"
             actionref(Refresh_Ref; Refresh) { }
         }
     }
+
+    var
+        PendingApprovalCount: Integer;
+        TeamAbsentCount: Integer;
+        MyDraftCount: Integer;
+        MySubmittedCount: Integer;
+        UnreadNotifCount: Integer;
+        PendingStyle: Text;
+        SubmittedStyle: Text;
+        NotifStyle: Text;
 
     trigger OnOpenPage()
     begin
