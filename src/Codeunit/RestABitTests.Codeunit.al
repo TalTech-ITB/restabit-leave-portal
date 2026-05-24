@@ -89,6 +89,28 @@ codeunit 50104 "RestABit Tests"
         Holiday.Delete(false);
     end;
 
+    [Test]
+    procedure CalcTotalDays_SingleDay_Returns1()
+    var
+        VacReq: Record "Vacation Request";
+    begin
+        VacReq.Init();
+        VacReq."From Date" := DMY2Date(1, 6, 2026);  // Monday
+        VacReq.Validate("To Date", DMY2Date(1, 6, 2026));
+        AssertEqual(1, VacReq."Total Days", 'Single working day should return 1');
+    end;
+
+    [Test]
+    procedure CalcTotalDays_WeekendOnly_ReturnsZero()
+    var
+        VacReq: Record "Vacation Request";
+    begin
+        VacReq.Init();
+        VacReq."From Date" := DMY2Date(6, 6, 2026);  // Saturday
+        VacReq.Validate("To Date", DMY2Date(7, 6, 2026));  // Sunday
+        AssertEqual(0, VacReq."Total Days", 'Sat–Sun only should return 0');
+    end;
+
     // ── SubmitRequest ────────────────────────────────────────────────────────
 
     [Test]
@@ -152,6 +174,34 @@ codeunit 50104 "RestABit Tests"
         VacType.Delete(false);
     end;
 
+    [Test]
+    procedure SubmitRequest_TypeNotInBalance_SkipsBalanceCheck()
+    var
+        VacReq: Record "Vacation Request";
+        VacType: Record "Vacation Type";
+        Emp: Record Employee;
+        Mgt: Codeunit VacationRequestMgt;
+    begin
+        // 5-day entitlement but type is not counted in balance → should not error
+        InsertTestEmployee(Emp, 'TST-BAL', 5);
+        InsertTestVacationType(VacType, 'TST-NBL', false);
+
+        VacReq.Init();
+        VacReq."Employee No." := Emp."No.";
+        VacReq."Vacation Type" := VacType.Code;
+        VacReq."From Date" := DMY2Date(1, 9, 2026);
+        VacReq.Validate("To Date", DMY2Date(14, 9, 2026));  // 10 working days > 5 entitlement
+        VacReq.Insert(false);
+
+        Mgt.SubmitRequest(VacReq);
+        AssertEqual(VacationRequestStatus::Submitted.AsInteger(), VacReq.Status.AsInteger(), 'Should submit regardless of balance when type is not counted');
+
+        Mgt.RejectRequest(VacReq);  // clean state before delete
+        VacReq.Delete(false);
+        Emp.Delete(false);
+        VacType.Delete(false);
+    end;
+
     // ── ApproveRequest ───────────────────────────────────────────────────────
 
     [Test]
@@ -177,6 +227,18 @@ codeunit 50104 "RestABit Tests"
         Mgt: Codeunit VacationRequestMgt;
     begin
         CreateMinimalRequest(VacReq);  // Status = Draft
+        asserterror Mgt.ApproveRequest(VacReq);
+        CleanupRequest(VacReq);
+    end;
+
+    [Test]
+    procedure ApproveRequest_AlreadyApproved_Errors()
+    var
+        VacReq: Record "Vacation Request";
+        Mgt: Codeunit VacationRequestMgt;
+    begin
+        CreateSubmittedRequest(VacReq);
+        Mgt.ApproveRequest(VacReq);
         asserterror Mgt.ApproveRequest(VacReq);
         CleanupRequest(VacReq);
     end;
@@ -210,6 +272,18 @@ codeunit 50104 "RestABit Tests"
         CleanupRequest(VacReq);
     end;
 
+    [Test]
+    procedure RejectRequest_AlreadyRejected_Errors()
+    var
+        VacReq: Record "Vacation Request";
+        Mgt: Codeunit VacationRequestMgt;
+    begin
+        CreateSubmittedRequest(VacReq);
+        Mgt.RejectRequest(VacReq);
+        asserterror Mgt.RejectRequest(VacReq);
+        CleanupRequest(VacReq);
+    end;
+
     // ── CancelRequest ────────────────────────────────────────────────────────
 
     [Test]
@@ -233,6 +307,43 @@ codeunit 50104 "RestABit Tests"
         CreateSubmittedRequest(VacReq);
         Mgt.ApproveRequest(VacReq);
         asserterror Mgt.CancelRequest(VacReq);
+        CleanupRequest(VacReq);
+    end;
+
+    [Test]
+    procedure CancelRequest_Rejected_Errors()
+    var
+        VacReq: Record "Vacation Request";
+        Mgt: Codeunit VacationRequestMgt;
+    begin
+        CreateSubmittedRequest(VacReq);
+        Mgt.RejectRequest(VacReq);
+        asserterror Mgt.CancelRequest(VacReq);
+        CleanupRequest(VacReq);
+    end;
+
+    [Test]
+    procedure CancelRequest_Cancelled_Errors()
+    var
+        VacReq: Record "Vacation Request";
+        Mgt: Codeunit VacationRequestMgt;
+    begin
+        CreateMinimalRequest(VacReq);
+        Mgt.CancelRequest(VacReq);
+        asserterror Mgt.CancelRequest(VacReq);
+        CleanupRequest(VacReq);
+    end;
+
+    // ── ExportToCalendar ─────────────────────────────────────────────────────
+
+    [Test]
+    procedure ExportToCalendar_NotApproved_Errors()
+    var
+        VacReq: Record "Vacation Request";
+        Mgt: Codeunit VacationRequestMgt;
+    begin
+        CreateSubmittedRequest(VacReq);
+        asserterror Mgt.ExportToCalendar(VacReq);
         CleanupRequest(VacReq);
     end;
 
@@ -274,6 +385,7 @@ codeunit 50104 "RestABit Tests"
         if Emp.Get('TST-BAL') then Emp.Delete(false);
         if VacType.Get('TST-ANN') then VacType.Delete(false);
         if VacType.Get('TST-BAL') then VacType.Delete(false);
+        if VacType.Get('TST-NBL') then VacType.Delete(false);
     end;
 
     local procedure InsertTestEmployee(var Emp: Record Employee; EmpNo: Code[20]; AnnualDays: Integer)
